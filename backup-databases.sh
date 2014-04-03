@@ -28,6 +28,19 @@ if [ "$?" != 0 ];then
 	exit 1 
 fi
 
+if (which pt-mysql-summary &>/dev/null);then
+	sendStatus "INFO: STORE SERVER SUMMARY"
+
+	pt-mysql-summary 2>&1 > pt-mysql-summary-this-server-${TIMESTAMP}.txt
+
+	MASTER_SERVER="$( mysql -e "show slave status\G"|awk '/Master_Host:/{print $2}' )"
+	MASTER_PORT="$( mysql -e "show slave status\G"|awk '/Master_Port:/{print $2}' )"
+
+	if ( [ -z "$MASTER_SERVER" ] &&  [ -z "$MASTER_PORT" ] );then
+		pt-mysql-summary 2>&1 > pt-mysql-summary-master-server-${TIMESTAMP}.txt
+	fi
+fi
+
 sendStatus "INFO: STARTING DATABASE BACKUP"
 
 FAILED="0"
@@ -63,7 +76,8 @@ fi
 echo "*** REMOVE OUTDATED BACKUPS **********************************************************************"
 
 if ( echo -n "$MAXAGE"|egrep -q '^[0-9][0-9]*$' );then
-	find . -name ".sql.gz" -mtime +${MAXAGE} -exec rm -fv {} \;
+	find $BACKUPDIR -name "*.sql.gz" -mtime +${MAXAGE} -exec rm -fv {} \;
+	find $BACKUPDIR -name "pt-server-summary-*.txt" -mtime +$(( ${MAXAGE} * 3 )) -exec rm -fv {} \;
 else
 	echo "Age not correctly defined"
 	exit 1 
