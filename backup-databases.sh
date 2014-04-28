@@ -4,6 +4,7 @@
 # - my.cnf backupppen
 # - letztes Backup aufheben
 
+MYSQL_EXTRA_OPTS="${MYSQL_EXTRA_OPTS:-}"
 BACKUPDIR="$1"
 MAXAGE="$2"
 
@@ -13,7 +14,10 @@ STARTTIME_GLOBAL="$SECONDS"
 sendStatus(){
     local STATUS="$1"
     echo ">>>>$STATUS<<<<"
-    zabbix_sender -s `hostname` -c /etc/zabbix/zabbix_agentd.conf -k mysql.backup.globalstatus -o "$STATUS" > /dev/null
+    logger -t "backup-databases.sh" "$STATUS"
+    if (which zabbix_sender &>/dev/null);then
+      zabbix_sender -s `hostname` -c /etc/zabbix/zabbix_agentd.conf -k mysql.backup.globalstatus -o "$STATUS" > /dev/null
+    fi
 }
 
 
@@ -52,7 +56,7 @@ do
 	continue
    fi
    STARTTIME="$SECONDS"
-   mysqldump --opt --triggers --routines --force --single-transaction "$DBNAME"|\
+   mysqldump ${MYSQL_EXTRA_OPTS} --opt --triggers --routines --force --single-transaction "$DBNAME"|\
 	gzip -c > ${DBNAME}-${TIMESTAMP}_currently_dumping.sql.gz
    RET="$?"
 
@@ -64,7 +68,7 @@ do
 	FAILED="$($FAILED + 1)"
         sendStatus "INFO: FAILED TO BACKUP '$DBNAME'  in $DURATION minutes"
    fi
-done < <(mysql --xml -e "show databases;"|grep '<field name="Database">'|sed '~s,^.*<field name="Database">\(..*\)</field>.*$,\1,')
+done < <(mysql ${MYSQL_EXTRA_OPTS} --xml -e "show databases;"|grep '<field name="Database">'|sed '~s,^.*<field name="Database">\(..*\)</field>.*$,\1,')
 
 DURATION="$(( $(( $SECONDS - $STARTTIME_GLOBAL )) / 60 ))"
 if [ "$FAILED" -gt 0 ];then 
