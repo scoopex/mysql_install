@@ -18,9 +18,15 @@ Please forgive the poor documentation, this is work in progress.
 MariaDB Installation
 ====================
 
+This procedure describe the installation on RHEL 7.
 
 * TODO: Configure linux hugepages
 * TODO: Configure a dedicated mountpoint fpr the database
+* Disable SELinux
+```
+perl -pe -i '~s,^SELINUX=.*$,SELINUX=disabled,' /etc/sysconfig/selinux
+reboot
+```
 * Install Percona Toolkit : http://www.percona.com/downloads/percona-toolkit/LATEST/RPM/
 ```
 cd /tmp
@@ -48,9 +54,7 @@ groupadd -g 27 mysql
 mkdir -p /data/mariadb/
 cd /data/tools/mysql_install
 export PASSWD_MONITOR="myfunkypassword"
-# - Change version number
-# - Execute installation procedure
-# - ANswer questions
+# Answer questions
 ./local_mariadb_database.sh
 ```
 * Start instance and add it to system startup procedure
