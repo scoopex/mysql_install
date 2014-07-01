@@ -22,12 +22,19 @@ MariaDB Installation
 * TODO: Configure linux hugepages
 * TODO: Configure a dedicated mountpoint fpr the database
 * Install Percona Toolkit : http://www.percona.com/downloads/percona-toolkit/LATEST/RPM/
+```
+cd /tmp
+wget http://www.percona.com/redir/downloads/percona-toolkit/LATEST/RPM/percona-toolkit-2.2.8-1.noarch.rpm
+yum install perl perl-DBI perl-DBD-MySQL perl-Time-HiRes perl-IO-Socket-SSL
+rpm -Uvh percona-toolkit-*.noarch.rpm
+```
 * Install the tooling
 ```
+yum install git
 mkdir /data/tools
 cd /data/tools
-git clone git@github.com:scoopex/mysql_install.git
-sudo su -
+# git clone git@github.com:breuninger-ecom/mysql_install.git
+git clone https://github.com/breuninger-ecom/mysql_install.git
 ```
 * Download installation binaries to /data/tools/mysql_install/install
   * MariaDB: https://downloads.mariadb.org/
