@@ -50,6 +50,7 @@ binlog_cache_size=1M                   # default: 32k (holds changes for binlog 
 key_buffer_size=128M                   # default: 8M
 
 # innoDB settings
+innodb_file_format=Barracuda           # default: Antelope (if oyu need COMPRESSED and DYNAMIC)
 innodb_file_per_table=1                # default: 0 (own .ibd storage for each table)
 innodb_buffer_pool_size=1G             # default: 128M (for caching data und indexes)
 innodb_buffer_pool_instances=16        # default: 1, divides the buffer pool into a user-specified number of separate regions
