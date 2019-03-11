@@ -5,6 +5,8 @@
 # - letztes Backup aufheben
 
 MYSQL_EXTRA_OPTS="${MYSQL_EXTRA_OPTS:-}"
+EXCLUDE_DB_PERL_REGEX="${EXCLUDE_DB_PERL_REGEX:-}"
+
 BACKUPDIR="$1"
 MAXAGE="$2"
 
@@ -55,6 +57,12 @@ do
         echo SKIPPED
 	continue
    fi
+   
+   if [ -n "$EXCLUDE_DB_PERL_REGEX" ] && ( echo "$DBNAME" |grep -q -P "$EXCLUDE_DB_PERL_REGEX" );then
+        echo SKIPPED
+	continue
+   fi
+
    STARTTIME="$SECONDS"
    mysqldump ${MYSQL_EXTRA_OPTS} --opt --triggers --routines --force --single-transaction "$DBNAME"|\
 	gzip -c > ${DBNAME}-${TIMESTAMP}_currently_dumping.sql.gz
