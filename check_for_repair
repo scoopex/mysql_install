@@ -24,4 +24,4 @@ do
 done
 
 echo "INFO: identified all crashed tables"
-echo "mysql -c /tmp/repair.sql
+echo "mysql -c /tmp/repair.sql"
