@@ -1,0 +1,27 @@
+#!/bin/bash
+
+exec_query(){
+  mysql -A -e "$1" -N -s
+  return $?
+}
+
+DATABASES="$(exec_query 'show databases'|grep -v -P "performance_schema|information_schema" |xargs)"
+
+rm -v /tmp/repair.sql
+for DATABASE in $DATABASES;
+do
+  echo "==> $DATABASE"
+  exec_query "show tables FROM $DATABASE"|while read TABLE; do
+    echo -n "."
+    exec_query "select * from ${DATABASE}.${TABLE} limit 10" >/dev/null
+    if [ "$?" != "0" ];then
+      echo
+      echo "BROKEN ${DATABASE}.${TABLE} (see /tmp/repair.sql)"
+      echo "REPAIR TABLE ${DATABASE}.${TABLE} EXTENDED;" >>/tmp/repair.sql
+    fi
+  done
+  echo 
+done
+
+echo "INFO: identified all crashed tables"
+echo "mysql -c /tmp/repair.sql
