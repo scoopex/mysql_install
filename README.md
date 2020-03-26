@@ -101,4 +101,20 @@ export ADM_PASSWORD="$RADNOM$RANDOM$RANDOM"
 ```
  * TODO: TO BE CONTINUED
  
+Collect Debug data
+===================
+
+* Start a screen session <BR>
+  (better than a cronjob, because it is gone after a emergency reboot)
+  ```
+  screen -S collect_mysql_debug_data
+  ```
+* Start Profiling
+  ```
+  mkdir -p /var/log/mysql/collect_debug_info
+  for i in `seq 1 120`; do
+     ./collect_debug_info.sh -l /var/log/mysql/collect_debug_info -m '--defaults-file=/etc/mysql/debian.cnf'
+     sleep 2m
+  done
+  ```
 
